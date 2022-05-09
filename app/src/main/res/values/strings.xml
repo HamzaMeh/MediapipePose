@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Mediapipe Pose</string>
+    <string name="no_camera_access">Please grant camera permissions</string>
+    <string name="switch_camera">Switch Camera</string>
+</resources>
