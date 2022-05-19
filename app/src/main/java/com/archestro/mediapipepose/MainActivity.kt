@@ -1,15 +1,16 @@
 package com.archestro.mediapipepose
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.SurfaceTexture
 import android.os.Bundle
 import android.util.Log
 import android.util.Size
 import android.view.SurfaceHolder
-import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -29,8 +30,12 @@ import com.google.mediapipe.framework.PacketCallback
 import com.google.mediapipe.framework.PacketGetter
 import com.google.mediapipe.glutil.EglManager
 import com.google.protobuf.InvalidProtocolBufferException
+import net.majorkernelpanic.streaming.SessionBuilder
+import net.majorkernelpanic.streaming.gl.SurfaceView
+import net.majorkernelpanic.streaming.rtsp.RtspServer
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
+
 
 class MainActivity : AppCompatActivity(),
     EasyPermissions.PermissionCallbacks {
@@ -96,6 +101,7 @@ class MainActivity : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         switchButton=findViewById(R.id.switch_camera)
         textView=findViewById(R.id.no_camera_access_view)
 
@@ -122,7 +128,7 @@ class MainActivity : AppCompatActivity(),
 
 
 
-        previewDisplayView = SurfaceView(this)
+        previewDisplayView = findViewById(R.id.surface)
         setupPreviewDisplayView()
 
         // Initialize asset manager so that MediaPipe native libraries can access the app assets, e.g.,
@@ -162,6 +168,16 @@ class MainActivity : AppCompatActivity(),
                 }
             }
         )
+        SessionBuilder.getInstance()
+            .setSurfaceView(previewDisplayView)
+            .setPreviewOrientation(90)
+            .setContext(applicationContext)
+            .setAudioEncoder(SessionBuilder.AUDIO_NONE).videoEncoder = SessionBuilder.VIDEO_H264
+
+        // Starts the RTSP server
+
+        // Starts the RTSP server
+        startService(Intent(this, RtspServer::class.java))
     }
 
     override fun onResume() {
